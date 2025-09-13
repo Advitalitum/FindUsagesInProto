@@ -79,7 +79,10 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
         var document = projectFile.GetDocument();
         var match = regex.Match(document.GetText());
 
-        if (match.Success is false) return null;
+        if (match.Success is false)
+        {
+            return null;
+        }
 
         return new FindResultText(projectFile.ToSourceFile(), new DocumentRange(document, match.Groups[1].Index));
     }
