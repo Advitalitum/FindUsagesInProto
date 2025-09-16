@@ -23,32 +23,58 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
 
     public override bool IsCompatibleWithLanguage(PsiLanguageType languageType)
     {
-        return languageType is CSharpLanguage;
+        return IsCsharpLanguage(languageType);
     }
 
     public override IEnumerable<FindResult> GetRelatedFindResults(IDeclaredElement element)
     {
-        if (element.PresentationLanguage is CSharpLanguage
-            && element is IClrDeclaredElement clrDeclaredElement)
+        var grpcClassDeclaration = GetGrpcClassDeclarationOrNull(element);
+
+        if (grpcClassDeclaration is null)
         {
-            var classDeclaration = GetClassDeclarationOrNull(clrDeclaredElement);
-
-            if (classDeclaration is not null && IsGrpcGeneratedClass(classDeclaration))
-            {
-                var regex = GetOrCreateRegex(classDeclaration);
-
-                var results = classDeclaration
-                    .GetSolution()
-                    .GetAllProjects()
-                    .SelectMany(x => x.GetAllProjectFiles(WithProtoExtension))
-                    .Select(x => MapResultIfMatch(regex, x))
-                    .Where(x => x is not null);
-
-                return results;
-            }
+            return [];
         }
 
-        return [];
+        var regex = GetOrCreateRegex(grpcClassDeclaration);
+
+        var results = grpcClassDeclaration
+            .GetSolution()
+            .GetAllProjects()
+            .SelectMany(x => x.GetAllProjectFiles(WithProtoExtension))
+            .Select(x => MapResultIfMatch(regex, x))
+            .Where(x => x is not null);
+
+        return results;
+    }
+
+    public override IEnumerable<string> GetAllPossibleWordsInFile(IDeclaredElement element)
+    {
+        var grpcClassDeclaration = GetGrpcClassDeclarationOrNull(element);
+
+        return grpcClassDeclaration is not null ? [grpcClassDeclaration.ShortName] : [];
+    }
+
+    private static IClass GetGrpcClassDeclarationOrNull(IDeclaredElement element)
+    {
+        if (IsCsharpLanguage(element.PresentationLanguage) is false ||
+            element is not IClrDeclaredElement clrDeclaredElement)
+        {
+            return null;
+        }
+
+        var classDeclaration = ExtractClassDeclarationFromElementOrNull(clrDeclaredElement);
+
+        if (classDeclaration is null)
+        {
+            return null;
+        }
+
+        return IsGrpcGeneratedClass(classDeclaration) ? classDeclaration : null;
+    }
+
+    private static bool IsCsharpLanguage(PsiLanguageType elementPresentationLanguage)
+    {
+        return elementPresentationLanguage is CSharpLanguage;
     }
 
     private static Regex GetOrCreateRegex(IClass classDeclaration)
@@ -101,7 +127,8 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
             a.PositionParameters().Any(p => p.ConstantValue.StringValue == "protoc")));
     }
 
-    private IClass GetClassDeclarationOrNull(IClrDeclaredElement clrDeclaredElement)
+    [CanBeNull]
+    private static IClass ExtractClassDeclarationFromElementOrNull(IClrDeclaredElement clrDeclaredElement)
     {
         return clrDeclaredElement switch
         {
