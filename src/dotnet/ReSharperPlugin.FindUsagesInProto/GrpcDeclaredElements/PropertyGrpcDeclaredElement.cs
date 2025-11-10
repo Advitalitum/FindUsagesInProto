@@ -20,7 +20,8 @@ public class PropertyGrpcDeclaredElement : GrpcCsharpDeclaredElement
     {
         switch (clrDeclaredElement)
         {
-            case ICSharpProperty property when property.ContainingType is IClass classDeclaration && classDeclaration.IsGrpcGeneratedClass():
+            case ICSharpProperty property when property.ContainingType is IClass classDeclaration &&
+                                               classDeclaration.IsGrpcGeneratedClass():
 
                 element = new PropertyGrpcDeclaredElement(property, classDeclaration);
                 return true;
@@ -31,7 +32,7 @@ public class PropertyGrpcDeclaredElement : GrpcCsharpDeclaredElement
                 return false;
         }
     }
-    
+
     public override string ShortName => _classDeclaration.ShortName;
 
     public override Regex GetRegexForSearchInText()
@@ -41,7 +42,7 @@ public class PropertyGrpcDeclaredElement : GrpcCsharpDeclaredElement
         var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
 
         return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*message\s+{{_classDeclaration.ShortName}}\s*\{({{_property.ShortName}})""",
+            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*({{_property.ShortName.Underscore()}})[^\}]*}""",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 }
