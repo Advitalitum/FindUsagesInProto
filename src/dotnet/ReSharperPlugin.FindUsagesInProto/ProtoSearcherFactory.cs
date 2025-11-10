@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -15,11 +14,8 @@ using ReSharperPlugin.FindUsagesInProto.Helpers;
 namespace ReSharperPlugin.FindUsagesInProto;
 
 [PsiComponent(Instantiation.DemandAnyThreadSafe)]
-public class ProtoSearcher : DomainSpecificSearcherFactoryBase
+public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
 {
-    private static readonly ConcurrentDictionary<(string NamespaceQualifiedName, string ShortName), Regex> Regexes =
-        new();
-
     public override bool IsCompatibleWithLanguage(PsiLanguageType languageType)
     {
         return languageType.IsCsharpLanguage();
@@ -34,7 +30,7 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
             return [];
         }
 
-        var regex = GetOrCreateRegex(grpcClassDeclaration);
+        var regex = RegexHelper.GetRegex(grpcClassDeclaration);
 
         var results = element
             .GetAllSolutionProtoFiles()
@@ -69,22 +65,6 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
         return classDeclaration.IsGrpcGeneratedClass() ? classDeclaration : null;
     }
 
-    private static Regex GetOrCreateRegex(IClass classDeclaration)
-    {
-        var namespaceQualifiedName = classDeclaration.GetContainingNamespace().QualifiedName;
-
-        return Regexes.GetOrAdd((namespaceQualifiedName, classDeclaration.ShortName),
-            x => CreateRegex(x.NamespaceQualifiedName, x.ShortName));
-    }
-
-    private static Regex CreateRegex(string containingNamespaceQualifiedName, string shortName)
-    {
-        var namespaceName = containingNamespaceQualifiedName.Replace(".", @"\.");
-
-        return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*(message\s+{{shortName}}\s*\{)""",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    }
 
     [CanBeNull]
     private static FindResultText MapResultIfMatch(Regex regex, IProjectFile projectFile)
