@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +8,9 @@ using JetBrains.DocumentManagers;
 using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Search;
+using ReSharperPlugin.FindUsagesInProto.Helpers;
 
 namespace ReSharperPlugin.FindUsagesInProto;
 
@@ -23,7 +22,7 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
 
     public override bool IsCompatibleWithLanguage(PsiLanguageType languageType)
     {
-        return IsCsharpLanguage(languageType);
+        return languageType.IsCsharpLanguage();
     }
 
     public override IEnumerable<FindResult> GetRelatedFindResults(IDeclaredElement element)
@@ -37,10 +36,8 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
 
         var regex = GetOrCreateRegex(grpcClassDeclaration);
 
-        var results = grpcClassDeclaration
-            .GetSolution()
-            .GetAllProjects()
-            .SelectMany(x => x.GetAllProjectFiles(WithProtoExtension))
+        var results = element
+            .GetAllSolutionProtoFiles()
             .Select(x => MapResultIfMatch(regex, x))
             .Where(x => x is not null);
 
@@ -56,7 +53,7 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
 
     private static IClass GetGrpcClassDeclarationOrNull(IDeclaredElement element)
     {
-        if (IsCsharpLanguage(element.PresentationLanguage) is false ||
+        if (element.PresentationLanguage.IsCsharpLanguage() is false ||
             element is not IClrDeclaredElement clrDeclaredElement)
         {
             return null;
@@ -69,12 +66,7 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
             return null;
         }
 
-        return IsGrpcGeneratedClass(classDeclaration) ? classDeclaration : null;
-    }
-
-    private static bool IsCsharpLanguage(PsiLanguageType elementPresentationLanguage)
-    {
-        return elementPresentationLanguage is CSharpLanguage;
+        return classDeclaration.IsGrpcGeneratedClass() ? classDeclaration : null;
     }
 
     private static Regex GetOrCreateRegex(IClass classDeclaration)
@@ -94,11 +86,6 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 
-    private static bool WithProtoExtension(IProjectFile y)
-    {
-        return y.Name.EndsWith(".proto", StringComparison.OrdinalIgnoreCase);
-    }
-
     [CanBeNull]
     private static FindResultText MapResultIfMatch(Regex regex, IProjectFile projectFile)
     {
@@ -111,20 +98,6 @@ public class ProtoSearcher : DomainSpecificSearcherFactoryBase
         }
 
         return new FindResultText(projectFile.ToSourceFile(), new DocumentRange(document, match.Groups[1].Index));
-    }
-
-    private static bool IsGrpcGeneratedClass(IClass classDeclaration)
-    {
-        return classDeclaration.IsAbstract is false
-               && classDeclaration.IsSealed
-               && ConstructorHasGrpcGeneratedCodeAttribute(classDeclaration);
-    }
-
-    private static bool ConstructorHasGrpcGeneratedCodeAttribute(IClass classDeclaration)
-    {
-        return classDeclaration.Constructors.Any(c => c.GetAttributeInstances(true).Any(a =>
-            a.GetAttributeShortName() == "GeneratedCodeAttribute" &&
-            a.PositionParameters().Any(p => p.ConstantValue.StringValue == "protoc")));
     }
 
     [CanBeNull]
