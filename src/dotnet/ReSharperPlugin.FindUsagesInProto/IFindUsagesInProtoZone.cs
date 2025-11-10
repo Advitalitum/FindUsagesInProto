@@ -1,10 +1,9 @@
 using JetBrains.Application.BuildScript.Application.Zones;
 
-namespace ReSharperPlugin.FindUsagesInProto
+namespace ReSharperPlugin.FindUsagesInProto;
+
+[ZoneDefinition]
+// [ZoneDefinitionConfigurableFeature("Title", "Description", IsInProductSection: false)]
+public interface IFindUsagesInProtoZone : IZone
 {
-    [ZoneDefinition]
-    // [ZoneDefinitionConfigurableFeature("Title", "Description", IsInProductSection: false)]
-    public interface IFindUsagesInProtoZone : IZone
-    {
-    }
 }

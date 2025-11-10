@@ -23,14 +23,14 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
 
     public override IEnumerable<FindResult> GetRelatedFindResults(IDeclaredElement element)
     {
-        var grpcClassDeclaration = GetGrpcClassDeclarationOrNull(element);
+        var declaredElementInfo = GetDeclaredElementInfo(element);
 
-        if (grpcClassDeclaration is null)
+        if (declaredElementInfo is not GrpcCsharpDeclaredElement grpcDeclaredElement)
         {
             return [];
         }
 
-        var regex = RegexHelper.GetRegex(grpcClassDeclaration);
+        var regex = grpcDeclaredElement.GetRegexForSearchInText();
 
         var results = element
             .GetAllSolutionProtoFiles()
@@ -42,29 +42,15 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
 
     public override IEnumerable<string> GetAllPossibleWordsInFile(IDeclaredElement element)
     {
-        var grpcClassDeclaration = GetGrpcClassDeclarationOrNull(element);
+        var declaredElementInfo = GetDeclaredElementInfo(element);
 
-        return grpcClassDeclaration is not null ? [grpcClassDeclaration.ShortName] : [];
-    }
-
-    private static IClass GetGrpcClassDeclarationOrNull(IDeclaredElement element)
-    {
-        if (element.PresentationLanguage.IsCsharpLanguage() is false ||
-            element is not IClrDeclaredElement clrDeclaredElement)
+        if (declaredElementInfo is not GrpcCsharpDeclaredElement grpcDeclaredElement)
         {
-            return null;
+            return [];
         }
 
-        var classDeclaration = ExtractClassDeclarationFromElementOrNull(clrDeclaredElement);
-
-        if (classDeclaration is null)
-        {
-            return null;
-        }
-
-        return classDeclaration.IsGrpcGeneratedClass() ? classDeclaration : null;
+        return [grpcDeclaredElement.ShortName];
     }
-
 
     [CanBeNull]
     private static FindResultText MapResultIfMatch(Regex regex, IProjectFile projectFile)
@@ -80,14 +66,20 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
         return new FindResultText(projectFile.ToSourceFile(), new DocumentRange(document, match.Groups[1].Index));
     }
 
-    [CanBeNull]
-    private static IClass ExtractClassDeclarationFromElementOrNull(IClrDeclaredElement clrDeclaredElement)
+    [NotNull]
+    private IDeclaredElementInfo GetDeclaredElementInfo(IDeclaredElement element)
     {
-        return clrDeclaredElement switch
+        if (element.PresentationLanguage.IsCsharpLanguage() is false ||
+            element is not IClrDeclaredElement clrDeclaredElement)
         {
-            IClass classDeclaration => classDeclaration,
-            IConstructor constructor => constructor.ContainingType as IClass,
-            _ => null
-        };
+            return NonGrpcCsharpDeclaredElement.Instance;
+        }
+
+        if (GrpcDeclaredElementFactory.TryCreate(clrDeclaredElement, out var grpcDeclaredElement))
+        {
+            return grpcDeclaredElement;
+        }
+
+        return NonGrpcCsharpDeclaredElement.Instance;
     }
 }
