@@ -50,7 +50,7 @@ public class ServiceMethodGrpcDeclaredElement : GrpcCsharpDeclaredElement
         var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
 
         return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*service\s+{{_rootGrpcClass.ShortName}}\s*\{[^\}]*(rpc\s+{{_method.ShortName}}\s*\()[^\}]*}""",
+            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*(rpc\s+{{_method.ShortName}}\s*\()[^\}]*}""",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 }

@@ -51,7 +51,7 @@ public class ClientMethodGrpcDeclaredElement : GrpcCsharpDeclaredElement
         var methodNameInProto = isAsyncMethod ? _method.ShortName.RemoveEnd("Async") : _method.ShortName;
         
         return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*service\s+{{_rootGrpcClass.ShortName}}\s*\{[^\}]*(rpc\s+{{methodNameInProto}}\s*\()[^\}]*}""",
+            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*(rpc\s+{{methodNameInProto}}\s*\()[^\}]*}""",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 }
