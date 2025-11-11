@@ -6,34 +6,35 @@ namespace ReSharperPlugin.FindUsagesInProto;
 public static class GrpcDeclaredElementFactory
 {
     [ContractAnnotation("=> true, element:notnull; => false, element:null")]
-    public static bool TryCreate(IClrDeclaredElement declaredElement, [CanBeNull] out GrpcCsharpDeclaredElement element)
+    public static bool TryCreate(IClrDeclaredElement clrDeclaredElement,
+        [CanBeNull] out GrpcCsharpDeclaredElement element)
     {
-        if (ClassOrConstructorGrpcDeclaredElement.TryCreate(declaredElement,
+        if (ClassOrConstructorGrpcDeclaredElement.TryCreate(clrDeclaredElement,
                 out var classOrConstructorGrpcDeclaredElement))
         {
             element = classOrConstructorGrpcDeclaredElement;
             return true;
         }
 
-        if (PropertyGrpcDeclaredElement.TryCreate(declaredElement, out var propertyGrpcDeclaredElement))
+        if (PropertyGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var propertyGrpcDeclaredElement))
         {
             element = propertyGrpcDeclaredElement;
             return true;
         }
 
-        if (EnumValueGrpcDeclaredElement.TryCreate(declaredElement, out var enumValueGrpcDeclaredElement))
+        if (EnumValueGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var enumValueGrpcDeclaredElement))
         {
             element = enumValueGrpcDeclaredElement;
             return true;
         }
 
-        if (EnumTypeGrpcDeclaredElement.TryCreate(declaredElement, out var enumTypeGrpcDeclaredElement))
+        if (EnumTypeGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var enumTypeGrpcDeclaredElement))
         {
             element = enumTypeGrpcDeclaredElement;
             return true;
         }
 
-        if (ServiceMethodGrpcDeclaredElement.TryCreate(declaredElement, out var serviceMethodGrpcDeclaredElement))
+        if (ServiceMethodGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var serviceMethodGrpcDeclaredElement))
         {
             element = serviceMethodGrpcDeclaredElement;
             return true;

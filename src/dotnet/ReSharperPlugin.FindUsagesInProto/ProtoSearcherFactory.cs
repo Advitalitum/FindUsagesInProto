@@ -69,13 +69,9 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
     [NotNull]
     private IDeclaredElementInfo GetDeclaredElementInfo(IDeclaredElement element)
     {
-        if (element.PresentationLanguage.IsCsharpLanguage() is false ||
-            element is not IClrDeclaredElement clrDeclaredElement)
-        {
-            return NonGrpcCsharpDeclaredElement.Instance;
-        }
-
-        if (GrpcDeclaredElementFactory.TryCreate(clrDeclaredElement, out var grpcDeclaredElement))
+        if (element.PresentationLanguage.IsCsharpLanguage()
+            && element is IClrDeclaredElement clrDeclaredElement
+            && GrpcDeclaredElementFactory.TryCreate(clrDeclaredElement, out var grpcDeclaredElement))
         {
             return grpcDeclaredElement;
         }
