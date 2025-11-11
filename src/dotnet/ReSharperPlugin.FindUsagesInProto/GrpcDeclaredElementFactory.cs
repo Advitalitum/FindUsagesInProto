@@ -33,6 +33,12 @@ public static class GrpcDeclaredElementFactory
             return true;
         }
 
+        if (ServiceMethodGrpcDeclaredElement.TryCreate(declaredElement, out var serviceMethodGrpcDeclaredElement))
+        {
+            element = serviceMethodGrpcDeclaredElement;
+            return true;
+        }
+
         element = null;
         return false;
     }
