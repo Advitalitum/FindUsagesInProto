@@ -46,7 +46,7 @@ public class EnumValueGrpcDeclaredElement : GrpcCsharpDeclaredElement
         var enumValueGrpcName = GetEnumValueGrpcName();
 
         return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*enum\s+{{_enum.ShortName}}\s*\{[^\}]*({{enumValueGrpcName}})[^\}]*}""",
+            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*enum\s+{{_enum.ShortName}}\s*\{[^\}]*\W({{enumValueGrpcName}})\W[^\}]*}""",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 

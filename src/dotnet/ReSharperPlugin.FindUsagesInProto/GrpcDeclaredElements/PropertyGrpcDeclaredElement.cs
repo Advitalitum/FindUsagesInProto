@@ -42,7 +42,7 @@ public class PropertyGrpcDeclaredElement : GrpcCsharpDeclaredElement
         var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
 
         return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*({{_property.ShortName.Underscore()}})[^\}]*}""",
+            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*\W({{_property.ShortName.Underscore()}})\W[^\}]*}""",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 }
