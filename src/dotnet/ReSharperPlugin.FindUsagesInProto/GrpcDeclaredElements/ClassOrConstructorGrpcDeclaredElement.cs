@@ -50,7 +50,7 @@ public class ClassOrConstructorGrpcDeclaredElement : GrpcCsharpDeclaredElement
         var namespaceName = containingNamespaceQualifiedName.Replace(".", @"\.");
 
         return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*(message\s+{{shortName}}\s*\{)""",
+            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*message\s+({{shortName}})\s*\{""",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 }

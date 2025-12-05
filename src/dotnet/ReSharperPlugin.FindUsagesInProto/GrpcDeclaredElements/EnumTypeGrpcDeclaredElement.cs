@@ -37,7 +37,7 @@ public class EnumTypeGrpcDeclaredElement : GrpcCsharpDeclaredElement
         var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
 
         return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*(enum\s+{{_enum.ShortName}})\s*\{""",
+            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*enum\s+({{_enum.ShortName}})\s*\{""",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
     }
 }
