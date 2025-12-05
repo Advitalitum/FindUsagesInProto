@@ -38,7 +38,7 @@ public class ClassOrConstructorGrpcDeclaredElement : GrpcCsharpDeclaredElement
 
     public override string ShortName => _classDeclaration.ShortName;
 
-    public override GrpcElementSearchInfo GetSearchInfo() =>
-        $$"""message\s+({{ShortName}})\s*\{"""
-            .ToGrpcElementSearchHelper(_classDeclaration.GetContainingNamespace());
+    protected override INamespace CsharpNamespace => _classDeclaration.GetContainingNamespace();
+
+    protected override string GetElementSearchPattern() => $$"""message\s+({{ShortName}})\s*\{""";
 }

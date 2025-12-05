@@ -33,8 +33,8 @@ public class PropertyGrpcDeclaredElement : GrpcCsharpDeclaredElement
     }
 
     public override string ShortName => _property.ShortName.Underscore();
+    
+    protected override INamespace CsharpNamespace => _classDeclaration.GetContainingNamespace();
 
-    public override GrpcElementSearchInfo GetSearchInfo() =>
-        $$"""message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*\W({{_property.ShortName.Underscore()}})\W[^\}]*}"""
-            .ToGrpcElementSearchHelper(_classDeclaration.GetContainingNamespace());
+    protected override string GetElementSearchPattern() =>  $$"""message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*\W({{_property.ShortName.Underscore()}})\W[^\}]*}""";
 }

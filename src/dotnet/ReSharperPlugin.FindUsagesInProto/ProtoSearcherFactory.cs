@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -31,17 +30,17 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
 
         var suitableProtoFiles = element.GetSuitableProtoFiles(grpcDeclaredElement);
 
-        var getRegexWithCsharpNamespace = grpcDeclaredElement.GetSearchInfo().SearchWithCsharpNamespaceRegex;
+        var regexWithCsharpNamespace = grpcDeclaredElement.GetSearchInfo().SearchWithCsharpNamespaceRegex;
         var searchWithCsharpNamespaceResult = suitableProtoFiles
-            .Select(x => MapResultIfMatch(getRegexWithCsharpNamespace, x))
+            .Select(x => MapResultIfMatch(regexWithCsharpNamespace, x))
             .Where(x => x is not null)
             .ToArray();
 
         if (searchWithCsharpNamespaceResult.Any() is false)
         {
-            var getRegexWithoutCsharpNamespace = grpcDeclaredElement.GetSearchInfo().SearchWithoutCsharpNamespaceRegex;
+            var regexWithoutCsharpNamespace = grpcDeclaredElement.GetSearchInfo().SearchWithoutCsharpNamespaceRegex;
             return suitableProtoFiles
-                .Select(x => MapResultIfMatch(getRegexWithoutCsharpNamespace, x))
+                .Select(x => MapResultIfMatch(regexWithoutCsharpNamespace, x))
                 .Where(x => x is not null);
         }
         

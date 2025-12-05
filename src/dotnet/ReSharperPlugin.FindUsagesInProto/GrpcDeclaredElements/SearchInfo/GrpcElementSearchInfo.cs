@@ -15,9 +15,8 @@ public record GrpcElementSearchInfo
     }
 
     public Regex SearchWithCsharpNamespaceRegex =>
-        new($$"""csharp_namespace\s*\=\s*\"{{_csharpNamespaceQualifiedNameFixed}}\"[\s\S]*""" + _elementSearchPattern,
+        new($"""csharp_namespace\s*\=\s*\"{_csharpNamespaceQualifiedNameFixed}\"[\s\S]*{_elementSearchPattern}""",
             RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    public Regex SearchWithoutCsharpNamespaceRegex =>
-        new(_elementSearchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    public Regex SearchWithoutCsharpNamespaceRegex => new(_elementSearchPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
 }

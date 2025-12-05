@@ -1,6 +1,5 @@
 using System.Linq;
 using JetBrains.ReSharper.Psi;
-using ReSharperPlugin.FindUsagesInProto.Helpers;
 
 namespace ReSharperPlugin.FindUsagesInProto;
 
@@ -42,8 +41,8 @@ public class ServiceMethodGrpcDeclaredElement : GrpcCsharpDeclaredElement
     }
 
     public override string ShortName => _method.ShortName;
+    
+    protected override INamespace CsharpNamespace => _rootGrpcClass.GetContainingNamespace();
 
-    public override GrpcElementSearchInfo GetSearchInfo() =>
-        $$"""service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*rpc\s+({{_method.ShortName}})\s*\([^\}]*}"""
-            .ToGrpcElementSearchHelper(_rootGrpcClass.GetContainingNamespace());
+    protected override string GetElementSearchPattern() => $$"""service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*rpc\s+({{_method.ShortName}})\s*\([^\}]*}""";
 }

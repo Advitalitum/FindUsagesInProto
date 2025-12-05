@@ -1,7 +1,6 @@
 using System.Linq;
 using JetBrains.ReSharper.Psi;
 using JetBrains.Util.Extension;
-using ReSharperPlugin.FindUsagesInProto.Helpers;
 
 namespace ReSharperPlugin.FindUsagesInProto;
 
@@ -39,14 +38,15 @@ public class ClientMethodGrpcDeclaredElement : GrpcCsharpDeclaredElement
     }
 
     public override string ShortName => _method.ShortName;
+    
+    protected override INamespace CsharpNamespace => _rootGrpcClass.GetContainingNamespace();
 
-    public override GrpcElementSearchInfo GetSearchInfo()
+    protected override string GetElementSearchPattern()
     {
         var returnTypeName = _method.ReturnType.GetPresentableName(_method.PresentationLanguage);
         var isAsyncMethod = returnTypeName.Contains("AsyncUnaryCall");
         var methodNameInProto = isAsyncMethod ? _method.ShortName.RemoveEnd("Async") : _method.ShortName;
 
-        return $$"""service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*rpc\s+({{methodNameInProto}})\s*\([^\}]*}"""
-            .ToGrpcElementSearchHelper(_rootGrpcClass.GetContainingNamespace());
+        return $$"""service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*rpc\s+({{methodNameInProto}})\s*\([^\}]*}""";
     }
 }
