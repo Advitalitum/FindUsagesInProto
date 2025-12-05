@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.ReSharper.Psi;
-using JetBrains.ReSharper.Psi.CSharp;
 using JetBrains.Util.Extension;
 
 namespace ReSharperPlugin.FindUsagesInProto;

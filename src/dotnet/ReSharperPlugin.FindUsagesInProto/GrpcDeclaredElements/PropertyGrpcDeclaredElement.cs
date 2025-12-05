@@ -33,7 +33,7 @@ public class PropertyGrpcDeclaredElement : GrpcCsharpDeclaredElement
         }
     }
 
-    public override string ShortName => _classDeclaration.ShortName;
+    public override string ShortName => _property.ShortName.Underscore();
 
     public override Regex GetRegexForSearchInText()
     {

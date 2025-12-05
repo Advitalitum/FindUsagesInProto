@@ -33,7 +33,7 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
         var regex = grpcDeclaredElement.GetRegexForSearchInText();
 
         var results = element
-            .GetAllSolutionProtoFiles()
+            .GetSuitableProtoFiles(grpcDeclaredElement)
             .Select(x => MapResultIfMatch(regex, x))
             .Where(x => x is not null);
 
@@ -53,9 +53,9 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
     }
 
     [CanBeNull]
-    private static FindResultText MapResultIfMatch(Regex regex, IProjectFile projectFile)
+    private static FindResultText MapResultIfMatch(Regex regex, IPsiSourceFile psiSourceFile)
     {
-        var document = projectFile.GetDocument();
+        var document = psiSourceFile.Document;
         var match = regex.Match(document.GetText());
 
         if (match.Success is false)
@@ -63,7 +63,7 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
             return null;
         }
 
-        return new FindResultText(projectFile.ToSourceFile(), new DocumentRange(document, match.Groups[1].Index));
+        return new FindResultText(psiSourceFile, new DocumentRange(document, match.Groups[1].Index));
     }
 
     [NotNull]
