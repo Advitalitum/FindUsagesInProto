@@ -1,13 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.DocumentModel;
 using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp;
-using JetBrains.ReSharper.Psi.Modules;
-using JetBrains.ReSharper.Psi.Protobuf;
-using JetBrains.ReSharper.Psi.Web.WebConfig;
 
 namespace ReSharperPlugin.FindUsagesInProto.Helpers;
 
@@ -36,7 +31,7 @@ public static class DeclaredElementHelper
         );
     }
 
-    public static IEnumerable<IPsiSourceFile> GetSuitableProtoFiles(this IDeclaredElement declaredElement,
+    public static IReadOnlyCollection<IPsiSourceFile> GetSuitableProtoFiles(this IDeclaredElement declaredElement,
         GrpcCsharpDeclaredElement grpcDeclaredElement)
     {
         var psiServices = declaredElement.GetPsiServices();
@@ -47,7 +42,8 @@ public static class DeclaredElementHelper
             .SelectMany(x => x.GetAllProjectFiles(WithProtobufFileType))
             .Select(y => y.ToSourceFile())
             .Where(x => x is not null)
-            .Where(x => psiServices.WordIndex.CanContainAllSubwords(x, grpcDeclaredElement.ShortName));
+            .Where(x => psiServices.WordIndex.CanContainAllSubwords(x, grpcDeclaredElement.ShortName))
+            .ToArray();
     }
 
     private static bool WithProtobufFileType(IProjectFile projectFile)

@@ -1,6 +1,6 @@
 using System.Linq;
-using System.Text.RegularExpressions;
 using JetBrains.ReSharper.Psi;
+using ReSharperPlugin.FindUsagesInProto.Helpers;
 
 namespace ReSharperPlugin.FindUsagesInProto;
 
@@ -43,14 +43,7 @@ public class ServiceMethodGrpcDeclaredElement : GrpcCsharpDeclaredElement
 
     public override string ShortName => _method.ShortName;
 
-    public override Regex GetRegexForSearchInText()
-    {
-        var namespaceQualifiedName = _rootGrpcClass.GetContainingNamespace().QualifiedName;
-
-        var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
-
-        return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*rpc\s+({{_method.ShortName}})\s*\([^\}]*}""",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    }
+    public override GrpcElementSearchInfo GetSearchInfo() =>
+        $$"""service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*rpc\s+({{_method.ShortName}})\s*\([^\}]*}"""
+            .ToGrpcElementSearchHelper(_rootGrpcClass.GetContainingNamespace());
 }

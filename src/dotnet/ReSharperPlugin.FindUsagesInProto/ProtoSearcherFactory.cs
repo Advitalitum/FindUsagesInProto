@@ -1,11 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using JetBrains.Application.Parts;
-using JetBrains.DocumentManagers;
 using JetBrains.DocumentModel;
-using JetBrains.ProjectModel;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.ExtensionsAPI;
 using JetBrains.ReSharper.Psi.Search;
@@ -30,14 +29,23 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
             return [];
         }
 
-        var regex = grpcDeclaredElement.GetRegexForSearchInText();
+        var suitableProtoFiles = element.GetSuitableProtoFiles(grpcDeclaredElement);
 
-        var results = element
-            .GetSuitableProtoFiles(grpcDeclaredElement)
-            .Select(x => MapResultIfMatch(regex, x))
-            .Where(x => x is not null);
+        var getRegexWithCsharpNamespace = grpcDeclaredElement.GetSearchInfo().SearchWithCsharpNamespaceRegex;
+        var searchWithCsharpNamespaceResult = suitableProtoFiles
+            .Select(x => MapResultIfMatch(getRegexWithCsharpNamespace, x))
+            .Where(x => x is not null)
+            .ToArray();
 
-        return results;
+        if (searchWithCsharpNamespaceResult.Any() is false)
+        {
+            var getRegexWithoutCsharpNamespace = grpcDeclaredElement.GetSearchInfo().SearchWithoutCsharpNamespaceRegex;
+            return suitableProtoFiles
+                .Select(x => MapResultIfMatch(getRegexWithoutCsharpNamespace, x))
+                .Where(x => x is not null);
+        }
+        
+        return searchWithCsharpNamespaceResult;
     }
 
     public override IEnumerable<string> GetAllPossibleWordsInFile(IDeclaredElement element)
@@ -56,6 +64,7 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
     private static FindResultText MapResultIfMatch(Regex regex, IPsiSourceFile psiSourceFile)
     {
         var document = psiSourceFile.Document;
+        
         var match = regex.Match(document.GetText());
 
         if (match.Success is false)

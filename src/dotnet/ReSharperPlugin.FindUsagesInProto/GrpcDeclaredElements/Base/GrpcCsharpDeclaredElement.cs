@@ -1,10 +1,12 @@
-using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace ReSharperPlugin.FindUsagesInProto;
 
 public abstract class GrpcCsharpDeclaredElement : IDeclaredElementInfo
 {
+    [NotNull]
     public abstract string ShortName { get; }
 
-    public abstract Regex GetRegexForSearchInText();
+   [NotNull]
+    public abstract GrpcElementSearchInfo GetSearchInfo();
 }

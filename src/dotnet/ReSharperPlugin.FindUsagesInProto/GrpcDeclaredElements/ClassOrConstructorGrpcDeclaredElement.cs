@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using JetBrains.ReSharper.Psi;
 using ReSharperPlugin.FindUsagesInProto.Helpers;
 
@@ -13,7 +12,8 @@ public class ClassOrConstructorGrpcDeclaredElement : GrpcCsharpDeclaredElement
         _classDeclaration = classDeclaration;
     }
 
-    public static bool TryCreate(IClrDeclaredElement clrDeclaredElement, out ClassOrConstructorGrpcDeclaredElement element)
+    public static bool TryCreate(IClrDeclaredElement clrDeclaredElement,
+        out ClassOrConstructorGrpcDeclaredElement element)
     {
         switch (clrDeclaredElement)
         {
@@ -35,22 +35,10 @@ public class ClassOrConstructorGrpcDeclaredElement : GrpcCsharpDeclaredElement
                 return false;
         }
     }
-    
+
     public override string ShortName => _classDeclaration.ShortName;
 
-    public override Regex GetRegexForSearchInText()
-    {
-        var namespaceQualifiedName = _classDeclaration.GetContainingNamespace().QualifiedName;
-
-        return CreateRegex(namespaceQualifiedName, _classDeclaration.ShortName);
-    }
-
-    private static Regex CreateRegex(string containingNamespaceQualifiedName, string shortName)
-    {
-        var namespaceName = containingNamespaceQualifiedName.Replace(".", @"\.");
-
-        return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*message\s+({{shortName}})\s*\{""",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    }
+    public override GrpcElementSearchInfo GetSearchInfo() =>
+        $$"""message\s+({{ShortName}})\s*\{"""
+            .ToGrpcElementSearchHelper(_classDeclaration.GetContainingNamespace());
 }

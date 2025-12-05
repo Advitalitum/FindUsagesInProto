@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using JetBrains.ReSharper.Psi;
 using JetBrains.ReSharper.Psi.CSharp.DeclaredElements;
 using ReSharperPlugin.FindUsagesInProto.Helpers;
@@ -35,14 +34,7 @@ public class PropertyGrpcDeclaredElement : GrpcCsharpDeclaredElement
 
     public override string ShortName => _property.ShortName.Underscore();
 
-    public override Regex GetRegexForSearchInText()
-    {
-        var namespaceQualifiedName = _classDeclaration.GetContainingNamespace().QualifiedName;
-
-        var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
-
-        return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*\W({{_property.ShortName.Underscore()}})\W[^\}]*}""",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    }
+    public override GrpcElementSearchInfo GetSearchInfo() =>
+        $$"""message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*\W({{_property.ShortName.Underscore()}})\W[^\}]*}"""
+            .ToGrpcElementSearchHelper(_classDeclaration.GetContainingNamespace());
 }

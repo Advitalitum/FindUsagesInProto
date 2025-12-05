@@ -1,6 +1,6 @@
 using System.Linq;
-using System.Text.RegularExpressions;
 using JetBrains.ReSharper.Psi;
+using ReSharperPlugin.FindUsagesInProto.Helpers;
 
 namespace ReSharperPlugin.FindUsagesInProto;
 
@@ -37,17 +37,12 @@ public class EnumValueGrpcDeclaredElement : GrpcCsharpDeclaredElement
 
     public override string ShortName => GetEnumValueGrpcName();
 
-    public override Regex GetRegexForSearchInText()
+    public override GrpcElementSearchInfo GetSearchInfo()
     {
-        var namespaceQualifiedName = _enum.GetContainingNamespace().QualifiedName;
-
-        var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
-
         var enumValueGrpcName = GetEnumValueGrpcName();
 
-        return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*enum\s+{{_enum.ShortName}}\s*\{[^\}]*\W({{enumValueGrpcName}})\W[^\}]*}""",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        return $$"""enum\s+{{_enum.ShortName}}\s*\{[^\}]*\W({{enumValueGrpcName}})\W[^\}]*}"""
+            .ToGrpcElementSearchHelper(_enum.GetContainingNamespace());
     }
 
     private string GetEnumValueGrpcName()

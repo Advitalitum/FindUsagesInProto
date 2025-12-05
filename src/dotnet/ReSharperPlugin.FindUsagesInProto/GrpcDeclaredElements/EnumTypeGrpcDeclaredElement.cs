@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using JetBrains.ReSharper.Psi;
+using ReSharperPlugin.FindUsagesInProto.Helpers;
 
 namespace ReSharperPlugin.FindUsagesInProto;
 
@@ -30,14 +30,6 @@ public class EnumTypeGrpcDeclaredElement : GrpcCsharpDeclaredElement
 
     public override string ShortName => _enum.ShortName;
 
-    public override Regex GetRegexForSearchInText()
-    {
-        var namespaceQualifiedName = _enum.GetContainingNamespace().QualifiedName;
-
-        var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
-
-        return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*enum\s+({{_enum.ShortName}})\s*\{""",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    }
+    public override GrpcElementSearchInfo GetSearchInfo() =>
+        $$"""enum\s+({{_enum.ShortName}})\s*\{""".ToGrpcElementSearchHelper(_enum.GetContainingNamespace());
 }

@@ -1,7 +1,7 @@
 using System.Linq;
-using System.Text.RegularExpressions;
 using JetBrains.ReSharper.Psi;
 using JetBrains.Util.Extension;
+using ReSharperPlugin.FindUsagesInProto.Helpers;
 
 namespace ReSharperPlugin.FindUsagesInProto;
 
@@ -40,17 +40,13 @@ public class ClientMethodGrpcDeclaredElement : GrpcCsharpDeclaredElement
 
     public override string ShortName => _method.ShortName;
 
-    public override Regex GetRegexForSearchInText()
+    public override GrpcElementSearchInfo GetSearchInfo()
     {
-        var namespaceQualifiedName = _rootGrpcClass.GetContainingNamespace().QualifiedName;
-
-        var namespaceName = namespaceQualifiedName.Replace(".", @"\.");
         var returnTypeName = _method.ReturnType.GetPresentableName(_method.PresentationLanguage);
         var isAsyncMethod = returnTypeName.Contains("AsyncUnaryCall");
         var methodNameInProto = isAsyncMethod ? _method.ShortName.RemoveEnd("Async") : _method.ShortName;
-        
-        return new Regex(
-            $$"""csharp_namespace\s*\=\s*\"{{namespaceName}}\"[\s\S]*service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*(rpc\s+({{methodNameInProto}})\s*\([^\}]*}""",
-            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        return $$"""service\s+{{_rootGrpcClass.ShortName}}\s*\{[\s\S]*rpc\s+({{methodNameInProto}})\s*\([^\}]*}"""
+            .ToGrpcElementSearchHelper(_rootGrpcClass.GetContainingNamespace());
     }
 }
