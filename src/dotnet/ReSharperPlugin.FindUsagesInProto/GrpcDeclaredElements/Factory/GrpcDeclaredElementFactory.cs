@@ -16,15 +16,33 @@ public static class GrpcDeclaredElementFactory
             return true;
         }
 
+        if (OneOfPropertyGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var oneOfPropertyGrpcDeclaredElement))
+        {
+            element = oneOfPropertyGrpcDeclaredElement;
+            return true;
+        }
+
         if (PropertyGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var propertyGrpcDeclaredElement))
         {
             element = propertyGrpcDeclaredElement;
             return true;
         }
 
+        if (OneOfEnumValueGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var oneOfEnumValueGrpcDeclaredElement))
+        {
+            element = oneOfEnumValueGrpcDeclaredElement;
+            return true;
+        }
+
         if (EnumValueGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var enumValueGrpcDeclaredElement))
         {
             element = enumValueGrpcDeclaredElement;
+            return true;
+        }
+
+        if (OneOfEnumTypeGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var oneOfEnumTypeGrpcDeclaredElement))
+        {
+            element = oneOfEnumTypeGrpcDeclaredElement;
             return true;
         }
 
@@ -39,7 +57,7 @@ public static class GrpcDeclaredElementFactory
             element = serviceMethodGrpcDeclaredElement;
             return true;
         }
-        
+
         if (ClientMethodGrpcDeclaredElement.TryCreate(clrDeclaredElement, out var clientMethodGrpcDeclaredElement))
         {
             element = clientMethodGrpcDeclaredElement;

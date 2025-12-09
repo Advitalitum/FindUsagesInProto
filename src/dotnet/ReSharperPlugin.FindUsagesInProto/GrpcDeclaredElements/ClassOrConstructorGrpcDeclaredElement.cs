@@ -7,7 +7,7 @@ public class ClassOrConstructorGrpcDeclaredElement : GrpcCsharpDeclaredElement
 {
     private readonly IClass _classDeclaration;
 
-    private ClassOrConstructorGrpcDeclaredElement(IClass classDeclaration)
+    protected ClassOrConstructorGrpcDeclaredElement(IClass classDeclaration)
     {
         _classDeclaration = classDeclaration;
     }

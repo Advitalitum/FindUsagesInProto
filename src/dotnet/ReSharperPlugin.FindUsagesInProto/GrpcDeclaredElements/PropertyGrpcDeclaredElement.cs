@@ -36,5 +36,5 @@ public class PropertyGrpcDeclaredElement : GrpcCsharpDeclaredElement
     
     protected override INamespace CsharpNamespace => _classDeclaration.GetContainingNamespace();
 
-    protected override string GetElementSearchPattern() =>  $$"""message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*\W({{_property.ShortName.Underscore()}})\W[^\}]*}""";
+    protected override string GetElementSearchPattern() =>  $$"""message\s+{{_classDeclaration.ShortName}}\s*\{[^\}]*\W({{_property.ShortName.Underscore()}})\s*\=[^\}]*}""";
 }
