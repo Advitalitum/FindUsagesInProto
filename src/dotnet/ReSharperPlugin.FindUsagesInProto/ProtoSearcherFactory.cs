@@ -34,6 +34,7 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
         var searchWithCsharpNamespaceResult = suitableProtoFiles
             .Select(x => MapResultIfMatch(regexWithCsharpNamespace, x))
             .Where(x => x is not null)
+            .OrderBy(x => x, FindResultTextComparer.Instance)
             .ToArray();
 
         if (searchWithCsharpNamespaceResult.Any() is false)
@@ -41,7 +42,8 @@ public class ProtoSearcherFactory : DomainSpecificSearcherFactoryBase
             var regexWithoutCsharpNamespace = grpcDeclaredElement.GetSearchInfo().SearchWithoutCsharpNamespaceRegex;
             return suitableProtoFiles
                 .Select(x => MapResultIfMatch(regexWithoutCsharpNamespace, x))
-                .Where(x => x is not null);
+                .Where(x => x is not null)
+                .OrderBy(x => x, FindResultTextComparer.Instance);
         }
         
         return searchWithCsharpNamespaceResult;
